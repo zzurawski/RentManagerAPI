@@ -48,6 +48,10 @@ async function getWithEmbeds(tenantId) {
   );
 }
 
+async function getWithFilterOnBalanceGreaterThanZero() {
+  return rmClient.getCollection("/tenants?filters=Balance,gt,0");
+}
+
 /**
  * Mirrors TenantSamples.SaveExistingUsingCustomModelAndIncludedFields():
  * fetches a tenant, builds a partial update payload, and posts only the
@@ -96,6 +100,7 @@ module.exports = {
   getById,
   getWithEmbeddedAddressesAndContacts,
   getWithEmbeds,
+  getWithFilterOnBalanceGreaterThanZero,
   updateBasicInfo,
   getContacts,
   getAddresses,
