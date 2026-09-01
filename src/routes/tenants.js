@@ -81,4 +81,13 @@ router.get("/:id/primary-contact", async (req, res, next) => {
   }
 });
 
+router.get("/Balance,gt,0", async (req, res, next) => {
+  try {
+    res.json(await tenantService.getWithFilterOnBalanceGreaterThanZero());
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
 module.exports = router;
