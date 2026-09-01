@@ -19,6 +19,7 @@ function getClient() {
 
 function setApiToken(apiToken) {
   _apiToken = apiToken;
+  console.log("setApiToken called, new token:", _apiToken);
   const client = getClient();
   client.defaults.headers.common["X-RM12Api-ApiToken"] = apiToken;
   return apiToken;

@@ -4,41 +4,28 @@ const axios = require("axios");
 
 async function authorize() {
   const client = rmClient.getClient();
-  /*const response = await client.post("/Authentication/AuthorizeUser", {
+  const url = client.defaults.baseURL + 'Authentication/AuthorizeUser';
+  const data = {
     Username: process.env.RM_USERNAME || config.username,
     Password: process.env.RM_PASSWORD || config.password,
     LocationID: 1,
-  });*/
+  };
+  const headers = { 'Content-Type': 'application/json' };
 
-  let requestObj = {
-      method: 'POST',
-      url: client.defaults.baseURL + 'Authentication/AuthorizeUser',
-      data: {
-        Username:process.env.RM_USERNAME || config.username,
-        Password:process.env.RM_PASSWORD || config.password,
-        LocationID:1
-      },
-      headers: [{'Content-Type':'application/json'}]
-    };
-  console.log('Authorization request:', requestObj.data);
-
-  await axios.post(requestObj.url, requestObj.data, { headers: requestObj.headers })
-    .then(response => {
-      console.log('Authorization response:', response.data);
-      let apiToken = response.data;
-      if (typeof apiToken === "string") {
-        apiToken = apiToken.replace(/^"|"$/g, "");
-      }
-      rmClient.setApiToken(apiToken);
-      return apiToken;
-    })
-    .catch(error => {
-      console.error('Error during authorization:');
-      throw error;
-    });
-  let apiToken = response.data;
-  rmClient.setApiToken(apiToken);
-  return apiToken;
+  try {
+    console.log('Authorization request:', data);
+    const response = await axios.post(url, data, { headers });
+    console.log('Authorization response:', response.data);
+    let apiToken = response.data;
+    if (typeof apiToken === 'string') {
+      apiToken = apiToken.replace(/^"|"$/g, '');
+    }
+    rmClient.setApiToken(apiToken);
+    return apiToken;
+  } catch (error) {
+    console.error('Error during authorization:', error && error.message ? error.message : error);
+    throw error;
+  }
 }
 
 module.exports = { authorize };

@@ -4,8 +4,17 @@ const authService = require("../services/authService");
 async function ensureAuth(req, res, next) {
   console.log("Ensuring authorization with RentManager API...");
   try {
-    if (!rmClient.getApiToken()) {
-      await authService.authorize();
+    let apiToken = rmClient.getApiToken();
+    console.log("Current API token:", apiToken);
+    if (!apiToken) {
+      console.log("No API token found — requesting authorization...");
+      apiToken = await authService.authorize();
+      console.log("Authorization completed. New token:", apiToken);
+    } else {
+      console.log("Already authorized with RentManager API. Current token:", apiToken);
+    }
+    if (!apiToken) {
+      throw new Error('Authorization did not return an API token');
     }
     next();
   } catch (err) {
