@@ -1,8 +1,6 @@
-// JavaScript port of ApiSamples/TenantSamples.cs
-
 const rmClient = require("../helpers/rentManagerClient");
 
-// ---- Tenant collection ----------------------------------------------------
+// many Tenant get functions
 
 async function getAll() {
   return rmClient.getCollection("/tenants");
@@ -32,6 +30,10 @@ async function getSelectedFields() {
   return rmClient.getCollection("/tenants?fields=ActiveStartDate,Name");
 }
 
+async function getTenantsBalance() {
+  return rmClient.getCollection("/tenants?embeds=Balance&fields=Name&filters=balance,gt,0");
+}
+
 // ---- Single tenant ----------------------------------------------------
 
 async function getById(tenantId) {
@@ -48,6 +50,7 @@ async function getWithEmbeds(tenantId) {
   );
 }
 
+// POST functions
 async function getWithFilterOnBalanceGreaterThanZero() {
   return rmClient.getCollection("/tenants?filters=Balance,gt,0");
 }
@@ -76,8 +79,7 @@ async function updateBasicInfo(tenantId, { firstName, comment }) {
   );
 }
 
-// ---- Tenant sub-resources ----------------------------------------------------
-
+// GET functions for related entities
 async function getContacts(tenantId) {
   return rmClient.getCollection(`/tenants/${tenantId}/Contacts`);
 }
@@ -97,6 +99,7 @@ module.exports = {
   getFilteredByPropertyIdAndNameStartsWith,
   getFilteredByPropertyIdAndNameStartsWithOrderedByName,
   getSelectedFields,
+  getTenantsBalance,
   getById,
   getWithEmbeddedAddressesAndContacts,
   getWithEmbeds,

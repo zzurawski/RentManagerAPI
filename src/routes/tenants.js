@@ -6,7 +6,7 @@ const tenantService = require("../services/tenantService");
 router.get("/", async (req, res, next) => {
   try {
     const { propertyId, nameStartsWith, embedContacts } = req.query;
-
+    let embedBalance = true;
     if (propertyId && nameStartsWith) {
       return res.json(
         await tenantService.getFilteredByPropertyIdAndNameStartsWithOrderedByName(
@@ -18,8 +18,12 @@ router.get("/", async (req, res, next) => {
     if (propertyId) {
       return res.json(await tenantService.getFilteredByPropertyId(propertyId));
     }
-    if (embedContacts === "true") {
+    else if (embedContacts === "true") {
       return res.json(await tenantService.getAllWithEmbeddedContacts());
+    }
+    else if (embedBalance) {
+      console.log("Fetching tenants balance...");
+      return res.json(await tenantService.getTenantsBalance());
     }
     res.json(await tenantService.getAll());
   } catch (err) {
@@ -81,6 +85,16 @@ router.get("/:id/primary-contact", async (req, res, next) => {
   }
 });
 
+/*
+router.get("/balance", async (req, res, next) => {
+  try {
+    console.log("Fetching tenants balance...");
+    res.json(await tenantService.getTenantsBalance());
+  } catch (err) {
+    next(err);
+  }
+});
+*/
 router.get("/Balance,gt,0", async (req, res, next) => {
   try {
     res.json(await tenantService.getWithFilterOnBalanceGreaterThanZero());
