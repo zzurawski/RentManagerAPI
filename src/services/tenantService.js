@@ -1,3 +1,4 @@
+const { Readline } = require("node:readline/promises");
 const rmClient = require("../helpers/rentManagerClient");
 
 // many Tenant get functions
@@ -31,10 +32,9 @@ async function getSelectedFields() {
 }
 
 async function getTenantsBalance() {
-  return rmClient.getCollection("/tenants?embeds=Balance&fields=Name&filters=balance,gt,0");
+  const balanceAmount = 0;
+  return rmClient.getCollection(`/tenants?embeds=Balance&fields=Name&filters=balance,gt,${balanceAmount}`);
 }
-
-// ---- Single tenant ----------------------------------------------------
 
 async function getById(tenantId) {
   return rmClient.getSingle(`/tenants/${tenantId}`);

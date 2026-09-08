@@ -26,7 +26,6 @@ function setApiToken(apiToken) {
 }
 
 function getApiToken() {
-  console.log("getApiToken called, current token:", _apiToken);
   return _apiToken;
 }
 
