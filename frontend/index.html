@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Manager API - Tenants</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; }
+    #status { margin-bottom: 12px; color: #444; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f9f9f9; border: 1px solid #eee; margin-bottom: 8px; padding: 8px; border-radius: 4px; }
+    pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <h1>Tenants</h1>
+  <div id="status">Loading tenants from server...</div>
+  <ul id="tenant-list" aria-live="polite"></ul>
+
+  <script>
+    async function loadTenants() {
+      const status = document.getElementById('status');
+      const list = document.getElementById('tenant-list');
+      try {
+        const res = await fetch('http://localhost:3000/tenants');
+        if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+        const tenants = await res.json();
+        status.textContent = '';
+
+        if (!Array.isArray(tenants) || tenants.length === 0) {
+          status.textContent = 'No tenants found.';
+          return;
+        }
+
+        tenants.forEach((t) => {
+          const li = document.createElement('li');
+          const pre = document.createElement('pre');
+          pre.textContent = JSON.stringify(t, null, 2);
+          li.appendChild(pre);
+          list.appendChild(li);
+        });
+      } catch (err) {
+        status.textContent = 'Error getting tenants: ' + err.message;
+        console.error('Error getting tenants:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadTenants);
+  </script>
+</body>
+</html>
