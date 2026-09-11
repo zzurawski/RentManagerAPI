@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Templates</title>
+</head>
+<body>
+    <h1>Letter Templates</h1>
+    <nav>
+        <a href="../index.html">Home</a> |
+        <a href="report.html">Report</a> |
+        <a href="tenants.html">Tenants</a> |
+        <a href="letterTemplates.html">Letter Templates</a>
+    </nav>
+    <ul>
+
+    </ul>
+    <script>
+        async function loadLetterTemplates() {
+            try {
+                const res = await fetch('http://localhost:3000/lettertemplates');
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const letterTemplates = await res.json();
+                console.log('Letter Templates:', letterTemplates);
+                const list = document.createElement('ul');
+                letterTemplates.forEach(template => {
+                    const li = document.createElement('li');
+                    li.textContent = template.name; // Assuming each template has a 'name' property
+                    list.appendChild(li);
+                });
+                document.body.appendChild(list);
+            } catch (err) {
+                console.error('Error loading letter templates:', err);
+            }
+        }
+
+        window.onload = loadLetterTemplates;
+    </script>
+</body>
+</html>
