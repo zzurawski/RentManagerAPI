@@ -7,6 +7,11 @@
 </head>
 <body>
     <h1>RentManager Report</h1>
+    <nav>
+        <a href="../index.html">Home</a> |
+        <a href="report.html">Report</a> |
+        <a href="tenants.html">Tenants</a>
+    </nav>
     <div id="status">Loading report from server...</div>
     <ul id="report-list" aria-live="polite"></ul>
     <form>
@@ -15,18 +20,12 @@
     <script>
         async function loadReport() {
             try {
-                const res = await fetch('http://localhost:3000/report');
+                const res = await fetch('http://localhost:3000/reports/occupancy-listing');
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
-                const report = await res.json();
-                console.log('Report:', report);
-                document.getElementById('status').textContent = 'Report loaded successfully.';
+                const reportHtml = await res.text();
+                document.getElementById('status').textContent = '';
                 const reportList = document.getElementById('report-list');
-                reportList.innerHTML = '';
-                report.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    reportList.appendChild(li);
-                });
+                reportList.innerHTML = reportHtml;
             } catch (err) {
                 console.error('Error getting report:', err);
                 document.getElementById('status').textContent = 'Error loading report.';
