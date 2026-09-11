@@ -6,18 +6,21 @@ const ensureAuth = require("./helpers/auth");
 const colorsRouter = require("./routes/colors");
 const tenantsRouter = require("./routes/tenants");
 const reportsRouter = require("./routes/reports");
+const tenantService = require("./services/tenantService");
 
 const app = express();
 
 const allowedOrigins = config.allowedOrigins || [
   "http://localhost:3000",
-  "http://localhost:5173",
+  "http://localhost:4200",
+  "http://localhost:5500",
 ];
 
 app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log("CORS origin:", origin);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
@@ -33,11 +36,11 @@ app.use(
 
 app.use("/", ensureAuth);
 
+app.use("/colors", colorsRouter);
 app.use("/tenants", tenantsRouter);
 app.use("/reports", reportsRouter);
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
-
 
 app.use((err, req, res, next) => {
   console.error(err);
