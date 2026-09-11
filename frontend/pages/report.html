@@ -15,12 +15,16 @@
     <div id="status">Loading report from server...</div>
     <ul id="report-list" aria-live="polite"></ul>
     <form>
+        <input type="text" label="Property IDs" id="propertyIds" placeholder="Property IDs (comma-separated)">
+        <input type="date" id="asOfDate" placeholder="As of Date">
         <input type="button" value="Run Report" onclick="loadReport()">
     </form>
     <script>
         async function loadReport() {
             try {
-                const res = await fetch('http://localhost:3000/reports/occupancy-listing');
+                const propertyIds = document.getElementById('propertyIds').value;
+                const asOfDate = document.getElementById('asOfDate').value;
+                const res = await fetch(`http://localhost:3000/reports/occupancy-listing?propertyIds=${propertyIds}&asOfDate=${asOfDate}`);
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const reportHtml = await res.text();
                 document.getElementById('status').textContent = '';
@@ -31,7 +35,12 @@
                 document.getElementById('status').textContent = 'Error loading report.';
             }
         }
-        window.onload = loadReport;
+        document.getElementById('propertyIds').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loadReport();
+            }
+        });
     </script>
 </body>
 </html>
