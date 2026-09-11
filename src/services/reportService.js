@@ -27,7 +27,7 @@ async function getOccupancyListingHTML(propertyIds, asOfDate, outputDir = DEFAUL
   const pIDs = propertyIds.join(",");
   const date = `${asOfDate.getFullYear()}/${asOfDate.getMonth() + 1}/${asOfDate.getDate()}`;
 
-  const url = `/Reports/14/RunReport?parameters=PropertyIDs,(${pIDs});AsOfDate,${date}&GetOptions=ReturnHTMLUrl`;
+  const url = `/Reports/14/RunReport?parameters=PropertyIDs,(${pIDs});AsOfDate,${date};BatchPropsOrUnits,false&GetOptions=ReturnHTMLUrl`;
 
   let reportUrl;
   try {
