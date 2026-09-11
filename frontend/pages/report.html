@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentManager API - Report</title>
+</head>
+<body>
+    <h1>RentManager Report</h1>
+    <div id="status">Loading report from server...</div>
+    <ul id="report-list" aria-live="polite"></ul>
+    <form>
+        <input type="button" value="Run Report" onclick="loadReport()">
+    </form>
+    <script>
+        async function loadReport() {
+            try {
+                const res = await fetch('http://localhost:3000/report');
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const report = await res.json();
+                console.log('Report:', report);
+                document.getElementById('status').textContent = 'Report loaded successfully.';
+                const reportList = document.getElementById('report-list');
+                reportList.innerHTML = '';
+                report.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    reportList.appendChild(li);
+                });
+            } catch (err) {
+                console.error('Error getting report:', err);
+                document.getElementById('status').textContent = 'Error loading report.';
+            }
+        }
+        window.onload = loadReport;
+    </script>
+</body>
+</html>
