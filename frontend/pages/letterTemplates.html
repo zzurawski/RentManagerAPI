@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Templates</title>
+</head>
+<body>
+    <h1>Letter Templates</h1>
+    <nav>
+        <a href="../index.html">Home</a> |
+        <a href="report.html">Report</a> |
+        <a href="tenants.html">Tenants</a> |
+        <a href="letterTemplates.html">Letter Templates</a>
+    </nav>
+    <div id="letter-container" style="display: flex; justify-content: space-between;">
+        <div id="template-names" style="margin-top: 20px;width: 30%;border: 1px solid #ccc;padding: 10px;display: flex;">
+            <p id="status-letters"></p>
+            <ul id="letter-template-list" aria-live="polite"></ul>
+        </div>
+        <div id="template-content" style="margin-top: 20px;width: 60%;border: 1px solid #ccc;padding: 10px;display: flex">
+            <h2>Template Content</h2>
+            <pre id="letter-template-content"></pre>
+        </div>
+    </div>
+    <script>
+        async function loadLetterTemplates() {
+            try {
+                const res = await fetch('http://localhost:3000/lettertemplates');
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const letterTemplates = await res.json();
+                console.log('Letter Templates:', letterTemplates);
+
+                const list = document.getElementById('letter-template-list');
+                list.innerHTML = '';
+
+                letterTemplates.forEach(template => {
+                    const li = document.createElement('li');
+                    const templateName = template.Name ?? template.name ?? '';
+                    const templateId = template.Id ?? template.id ?? '';
+                    li.textContent = templateName;
+                    li.dataset.templateId = templateId;
+                    list.appendChild(li);
+                    li.addEventListener('click', () => {
+                        const templateId = li.dataset.templateId;
+                        previewLetterTemplate(templateId);
+                    });
+                });
+            } catch (err) {
+                console.error('Error loading letter templates:', err);
+                document.getElementById('status-letters').textContent = 'Error loading letter templates.';
+            }
+        }
+
+        window.onload = loadLetterTemplates;
+
+        async function previewLetterTemplate(templateId) {
+            let tenantId = tenantId || 2;
+            try {
+                const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview/${tenantId}`);
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const templateContent = await res.text();
+                document.getElementById('letter-template-content').textContent = templateContent;
+            } catch (err) {
+                console.error('Error loading letter template content:', err);
+                document.getElementById('letter-template-content').textContent = 'Error loading letter template content.';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -55,11 +55,6 @@ async function getWithFilterOnBalanceGreaterThanZero() {
   return rmClient.getCollection("/tenants?filters=Balance,gt,0");
 }
 
-/**
- * Mirrors TenantSamples.SaveExistingUsingCustomModelAndIncludedFields():
- * fetches a tenant, builds a partial update payload, and posts only the
- * included fields back.
- */
 async function updateBasicInfo(tenantId, { firstName, comment }) {
   const tenant = await rmClient.getSingle(`/tenants/${tenantId}`);
   if (!tenant) return null;

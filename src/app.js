@@ -6,7 +6,9 @@ const ensureAuth = require("./helpers/auth");
 const colorsRouter = require("./routes/colors");
 const tenantsRouter = require("./routes/tenants");
 const reportsRouter = require("./routes/reports");
+const letterTemplatesRouter = require("./routes/letterTemplates");
 const tenantService = require("./services/tenantService");
+const letterService = require("./services/letterService");
 
 const app = express();
 
@@ -39,6 +41,7 @@ app.use("/", ensureAuth);
 app.use("/colors", colorsRouter);
 app.use("/tenants", tenantsRouter);
 app.use("/reports", reportsRouter);
+app.use("/lettertemplates", letterTemplatesRouter);
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
