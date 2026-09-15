@@ -3,13 +3,28 @@ const path = require("path");
 const os = require("os");
 const rmClient = require("../helpers/rentManagerClient");
 
+// receive Letter Templates from Rent Manager API
 async function getLetterTemplates() {
-  try {
-    const url = `/LetterTemplates?fields=Name`;
-    const response = await rmClient.get(url);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching letter templates:", error);
-    throw error;
-  }
+    const url = `/LetterTemplates?fields=Name,LetterTemplateID`;
+    try {
+        return await rmClient.getCollection(url);
+    } catch (error) {
+        console.error("Error fetching letter templates:", error);
+        throw error;
+    }
 }
+
+async function previewLetterTemplate(templateId, tenantId) {
+    const url = `/LetterTemplates/${templateId}/RunLetterTemplates?GetOptions=ReturnHTMLUrl`;
+    try {
+        return await rmClient.postSingle(url, { EntityKeyIDs: [tenantId || 2] });
+    } catch (error) {
+        console.error("Error previewing letter template:", error);
+        throw error;
+    }
+}
+
+module.exports = {
+    getLetterTemplates,
+    previewLetterTemplate,
+};
