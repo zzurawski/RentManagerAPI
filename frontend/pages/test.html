@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${{template}}</title>
+</head>
+	<body style="margin:0;padding:0;background-color:#ffecec;font-family:Georgia,serif;">
+		<div id="letter-preview-frame">
+			<p>
+				
+			</p>
+		</div>
+
+<script>
+	async function previewLetterTemplate(templateId, tenantId) {
+		
+		const frame = document.getElementById('letter-preview-frame');
+		try {
+			const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview?tenantId=${tenantId}`);
+			if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+			const htmlContent = await res.text();
+			frame.contentDocument.open();
+			frame.contentDocument.write(htmlContent);
+			frame.contentDocument.close();
+		} catch (err) {
+			console.error('Error previewing letter template:', err);
+			frame.contentDocument.open();
+			frame.contentDocument.write('<p style="color:red;">Error loading letter template preview.</p>');
+			frame.contentDocument.close();
+		}
+	}
+
+	window.onload = previewLetterTemplate(194,2);
+</script>
+</body>
+</html>

@@ -22,7 +22,7 @@ router.get("/:templateId/preview/:tenantId", async (req, res, next) => {
     }
 
     const axios = require("axios");
-    const response = await axios.get(htmlUrl, { responseType: "text" });
+    const response = await axios.get(htmlUrl, { responseType: "html" });
 
     return res.type("html").send(response.data);
   } catch (err) {
