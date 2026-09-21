@@ -61,4 +61,4 @@ function streamToFile(readableStream, destPath) {
   });
 }
 
-module.exports = { getBalanceDueReportPdf, getOccupancyListingHTML };
+module.exports = { getBalanceDueReportPdf, getOccupancyListingHTML, streamToFile };
