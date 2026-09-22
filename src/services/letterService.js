@@ -15,16 +15,11 @@ async function getLetterTemplates() {
 }
 
 async function previewLetterTemplate(templateId, tenantId) {
-    const url = `/LetterTemplates/${templateId}/RunLetterTemplates?GetOptions=ReturnHTMLUrl`;
+    const url = `/LetterTemplates/${templateId}/MergeLetterTemplate?RecipientIds=${tenantId || 2}&GetOptions=ReturnHTMLStream`;
     try {
-        console.log(`Previewing letter template ${templateId} for tenant ${tenantId}`);
         const client = rmClient.getClient();
-        const res = await client.post(url, [{LetterTemplateID: templateId, EntityKeyIDs: [tenantId || 2] }]);
-        console.dir(res.data, { depth: null });
-        console.log(`Received response for letter template ${templateId}:`, res.data[0].FileLinks[0].URL);
-        const payload = res.data[0].FileLinks[0].URL || res.data[0].FileLinks[0].url || res.data[0].FileLinks[0].HtmlUrl || res.data[0].FileLinks[0].htmlUrl || res.data[0].FileLinks[0].HTMLUrl || "NO URL FOUND";
-        console.log(`Received response for letter template ${templateId}: ${payload}`);
-
+        const res = await client.post(url); // this endpoint somehow does not need a request body, contained in url
+        const payload = res.data; // get the HTML content from the response
         return payload;
     } catch (error) {
         console.error("Error previewing letter template:", error);
