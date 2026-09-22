@@ -67,10 +67,7 @@
                 const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview/${tenantId}`);
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 
-                const html = await res.text();
-                frame.contentDocument.open();
-                frame.contentDocument.write(`${html}`);
-                frame.contentDocument.close();
+                frame.srcdoc = await res.text();
             } catch (err) {
                 console.error('Error loading letter template content:', err);
                 frame.contentDocument.open();

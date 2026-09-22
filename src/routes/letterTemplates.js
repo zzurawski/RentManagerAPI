@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const letterService = require("../services/letterService");
-const reportService = require("../services/reportService");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -15,16 +14,13 @@ router.get("/", async (req, res, next) => {
 router.get("/:templateId/preview/:tenantId", async (req, res, next) => {
   try {
     const { templateId, tenantId = 2 } = req.params;
-    const htmlUrl = await letterService.previewLetterTemplate(templateId, tenantId);
-
-    if (!htmlUrl) {
+    const htmlResponse = await letterService.previewLetterTemplate(templateId, tenantId);
+    console.log(`response is ${htmlResponse}`);
+    if (!htmlResponse) {
       return res.status(404).json({ error: "Letter preview not found" });
     }
 
-    const axios = require("axios");
-    const response = await axios.get(htmlUrl, { responseType: "html" });
-
-    return res.type("html").send(response.data);
+    return htmlResponse;
   } catch (err) {
     next(err);
   }
