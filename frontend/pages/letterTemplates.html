@@ -34,7 +34,6 @@
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 
                 const letterTemplates = await res.json();
-                console.log('Letter Templates:', letterTemplates);
 
                 const list = document.getElementById('letter-template-list');
                 list.innerHTML = '';

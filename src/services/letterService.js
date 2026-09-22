@@ -22,7 +22,6 @@ async function previewLetterTemplate(templateId, tenantId) {
         const res = await client.post(url, [{LetterTemplateID: templateId, EntityKeyIDs: [tenantId || 2] }]);
         console.dir(res.data, { depth: null });
         const payload = res.data[0].FileLinks[0].URL || res.data[0].FileLinks[0].url || res.data[0].FileLinks[0].HtmlUrl || res.data[0].FileLinks[0].htmlUrl || res.data[0].FileLinks[0].HTMLUrl || "NO URL FOUND";
-        console.log(`Received response for letter template ${templateId}: ${payload}`);
 
         return payload;
     } catch (error) {
