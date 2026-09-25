@@ -1,9 +1,19 @@
+/* THIS IS MAIN BODY STUFF */
+
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: 0.5em;
+}
+
 body {
     background-color: #2b2828;
     color: #f5efef;
     font-family: Arial, sans-serif;
-    overflow-x: hidden;
+    overflow: hidden;
+    max-height: 100vh;
 }
+
+/* Navigation bar styles */
 
 nav {
     background-color: #2793db;
@@ -12,6 +22,8 @@ nav {
     margin-bottom: 20px;
     align-items: center;
     width: 100vw;
+    overflow: hidden;
+    border: 1px solid black;
 }
 
 nav a {
@@ -19,6 +31,7 @@ nav a {
     text-decoration: none;
     margin-right: 15px;
     padding: 5px 10px;
+    overflow: hidden;
 }
 
 nav a:hover {
@@ -27,11 +40,72 @@ nav a:hover {
     font-weight: bold;
 }
 
+nav img {
+    max-height: 30px;
+    margin: 0;
+}
+
+nav #font-size {
+    float: inline-end;
+    margin-right: 20px;
+}
+
+nav:hover {
+    .sub-nav {
+        visibility: visible;
+    }
+}
+
+.main-nav {
+    border: 2px solid red;
+    width: 33%
+}
+
+.sub-nav {
+    visibility: hidden;
+    border: 2px solid yellow
+}
+
+/* Content container styles */
+
 div {
     margin-bottom: 20px;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#tenant-list{
+    background-color: #fff;
+    color: #000;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
+    max-height: 75vh;
+    overflow: auto;
+}
+/* Letter template list and preview styles */
+#header {
+    border: 0;
+    margin: 0;
+    padding: 0%;
+    letter-spacing: 5%;
+
+}
+
+#header h3 {
+    text-align: flex-start;
+    margin-left: 5px;
+    width: 20%;
+}
+
+#header p {
+    text-align: flex-start;
+    margin-bottom: 0px;
+    font-size: 14px;
+}
+
+#letter-container {
+    margin-bottom:5px
 }
 
 #template-names {
@@ -41,17 +115,20 @@ div {
     border-radius: 5px;
     padding: 10px;
     max-height: 75vh;
-    overflow-y: auto;
+    overflow: hidden;
     text-align: left;
 }
 #template-names ul {
     list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 #template-names li {
     cursor: pointer;
     padding: 5px;
     border-bottom: 1px solid #ccc;
     font-size: 12px;
+    overflow: auto;
 }
 
 #template-content {
@@ -59,7 +136,16 @@ div {
     color: #000;
     border: 1px solid #ccc;
     border-radius: 5px;
-    padding: 10px;
+    padding: 0px;
     max-height: 75vh;
-    overflow-y: hidden;
+    overflow: hidden;
+}
+
+h2 {
+    margin: 0;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    background-color: #e7e7e7;
+    box-shadow: 1px rgba(0, 0, 0, 0.644);
+    border-radius: 5px 5px 0 0;
 }

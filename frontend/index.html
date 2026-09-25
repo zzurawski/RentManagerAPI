@@ -20,9 +20,10 @@
     <a href="./pages/tenants.html">Tenants</a>
     <a href="./pages/letterTemplates.html">Letter Templates</a>
   </nav>
-  <h1>Tenants</h1>
-  <div id="status">Loading tenants from server...</div>
-  <ul id="tenant-list" aria-live="polite"></ul>
+  <div>
+    <p id="status" aria-live="polite">Loading tenants...</p>
+    <ul id="tenant-list" aria-live="polite"></ul>
+  </div>
 
   <script>
     async function loadTenants() {
@@ -32,7 +33,7 @@
         const res = await fetch('http://localhost:3000/tenants');
         if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
         const tenants = await res.json();
-        status.textContent = '';
+        status.textContent="";
 
         if (!Array.isArray(tenants) || tenants.length === 0) {
           status.textContent = 'No tenants found.';
