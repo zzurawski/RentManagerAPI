@@ -55,10 +55,14 @@
         }
 
         window.onload = loadLetterTemplates;
+        // Track last blob URL to revoke when replaced
+        window._lastLetterPreviewUrl = null;
+        window.addEventListener('unload', () => {
+            if (window._lastLetterPreviewUrl) URL.revokeObjectURL(window._lastLetterPreviewUrl);
+        });
 
-// I need to have the html/txt output into another blank html file within the frontend and call that within the iframe
-
-
+        // Render the preview response as executed HTML inside the iframe.
+        // If server returns a URL, fetch that file. Otherwise treat response text as HTML.
         async function previewLetterTemplate(templateId) {
             const tenantId = 2;
             const frame = document.getElementById('letter-preview-frame');
@@ -67,12 +71,59 @@
                 const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview/${tenantId}`);
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 
-                frame.srcdoc = await res.text();
+                let responseText = await res.text();
+
+                // If responseText looks like a URL, try fetching it
+                let html = responseText;
+                const looksLikeUrl = /^(https?:)?\/\//i.test(responseText) || /\.html(?:$|\?)/i.test(responseText) || responseText.startsWith('/');
+                if (looksLikeUrl) {
+                    try {
+                        const fetchUrl = new URL(responseText, window.location.href).href;
+                        const fetched = await fetch(fetchUrl);
+                        if (fetched.ok) {
+                            const ct = fetched.headers.get('content-type') || '';
+                            if (ct.includes('text/html') || fetchUrl.endsWith('.html')) {
+                                html = await fetched.text();
+                            } else {
+                                // Not HTML — navigate iframe to URL
+                                frame.removeAttribute('srcdoc');
+                                frame.src = fetchUrl;
+                                return;
+                            }
+                        } else {
+                            // couldn't fetch, navigate iframe to URL as fallback
+                            frame.removeAttribute('srcdoc');
+                            frame.src = fetchUrl;
+                            return;
+                        }
+                    } catch (e) {
+                        // invalid URL or CORS — fall back to treating responseText as HTML
+                        html = responseText;
+                    }
+                }
+
+                // If HTML is escaped (e.g. &lt;div&gt;), decode it
+                if (html.includes('&lt;') && html.includes('&gt;')) {
+                    const ta = document.createElement('textarea');
+                    ta.innerHTML = html;
+                    html = ta.value;
+                }
+
+                // Create a blob so iframe navigates to a document and executes scripts/styles
+                try {
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    if (window._lastLetterPreviewUrl) URL.revokeObjectURL(window._lastLetterPreviewUrl);
+                    window._lastLetterPreviewUrl = blobUrl;
+                    frame.removeAttribute('srcdoc');
+                    frame.src = blobUrl;
+                } catch (blobErr) {
+                    // If Blob creation fails, fallback to srcdoc (scripts may be limited)
+                    frame.srcdoc = html;
+                }
             } catch (err) {
                 console.error('Error loading letter template content:', err);
-                frame.contentDocument.open();
-                frame.contentDocument.write('<p>Error loading letter template content.</p>');
-                frame.contentDocument.close();
+                frame.srcdoc = '<p>Error loading letter template content.</p>';
             }
         }
     </script>
