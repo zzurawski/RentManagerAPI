@@ -14,13 +14,14 @@ router.get("/", async (req, res, next) => {
 router.get("/:templateId/preview/:tenantId", async (req, res, next) => {
   try {
     const { templateId, tenantId = 2 } = req.params;
-    const htmlResponse = await letterService.previewLetterTemplate(templateId, tenantId);
-    console.log(`response is ${htmlResponse}`);
+    let htmlResponse = await letterService.previewLetterTemplate(templateId, tenantId);
+    
     if (!htmlResponse) {
       return res.status(404).json({ error: "Letter preview not found" });
     }
-
-    return htmlResponse;
+    
+    res.setHeader("Content-Type", "text/html");
+    res.send(htmlResponse);
   } catch (err) {
     next(err);
   }
