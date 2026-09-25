@@ -7,28 +7,36 @@
     <link rel="stylesheet" href="../index.css">
 </head>
 <body>
-    <h1>Letter Templates</h1>
+    
     <nav>
-        <a href="../index.html">Home</a> |
-        <a href="report.html">Report</a> |
-        <a href="tenants.html">Tenants</a> |
-        <a href="letterTemplates.html">Letter Templates</a>
-        <a href="test.html">Test</a>
+        <a href="../index.html"><img alt="home" src="../resources/home.png"/></a>
+        <a href="report.html">Reports</a> |
+        <a href="letterTemplates.html"><img alt="letters" src="../resources/envelope.png" /></a>
     </nav>
+
+    <div id="header">
+        <h3>Letter Previewer</h3>
+
+    </div>
+    
     <div id="letter-container" style="display: flex; justify-content: space-between; gap: 20px; align-items: flex-start;">
+        
         <div id="template-names" style="margin-top: 20px; width: 30%; border: 1px solid #ccc; padding: 10px; display: flex; flex-direction: column; box-sizing: border-box;max-height: 75vh; overflow: scroll; background: #fff;">
-            <p id="status-letters"></p>
-            <ul id="letter-template-list" aria-live="polite" style="margin: 0; padding-left: 20px;"></ul>
+            <h2>All Templates</h2>
+            <ul id="letter-template-list" aria-live="polite"></ul>
         </div>
-        <div id="template-content" style="margin-top: 20px; width: 60%; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; min-height: 75vh; background: #fff;">
-            <h2 id="template-title" style="margin-top: 0;text-align: center;border-bottom: 1px solid #ccc;"></h2>
+        
+        <div id="template-content" style="margin-top: 20px; width: 70%; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; min-height: 75vh; background: #fff;">
+            <h2 id="template-title">Template title</h2>
             <iframe id="letter-preview-frame" title="Letter template preview"
                 style="width: 100%; height: 75vh; border: 0; background: white; display: block; overflow: auto;">
             </iframe>
         </div>
+    
     </div>
 
     <script>
+        // grabs the Letter Templates from RM and shows the names
         async function loadLetterTemplates() {
             try {
                 const res = await fetch('http://localhost:3000/lettertemplates');
@@ -43,12 +51,13 @@
                     const li = document.createElement('li');
                     const templateName = template.Name ?? template.name ?? '';
                     const templateId = template.LetterTemplateID ?? template.lettertemplateid ?? '';
-                    li.textContent = templateName + ' (ID: ' + templateId + ')';
+                    li.textContent = templateName;
                     li.addEventListener('click', () => {
                         previewLetterTemplate(templateId);
                         li.style.backgroundColor = '#e0e0e0';
                         document.getElementById('template-title').textContent = templateName + ' preview';
-                        // Reset background color for other list items
+
+                        // Reset background color once unselected
                         Array.from(list.children).forEach(sibling => {
                             if (sibling !== li) sibling.style.backgroundColor = '';
                         });
@@ -57,19 +66,18 @@
                 });
             } catch (err) {
                 console.error('Error loading letter templates:', err);
-                document.getElementById('status-letters').textContent = 'Error loading letter templates.';
+                document.getElementById('template-names').textContent = 'Error loading letter templates.';
             }
         }
-
+        // get Letter templates immediately
         window.onload = loadLetterTemplates;
-        // Track last blob URL to revoke when replaced
+
         window._lastLetterPreviewUrl = null;
         window.addEventListener('unload', () => {
             if (window._lastLetterPreviewUrl) URL.revokeObjectURL(window._lastLetterPreviewUrl);
         });
 
-        // Render the preview response as executed HTML inside the iframe.
-        // If server returns a URL, fetch that file. Otherwise treat response text as HTML.
+        // show a preview of the merged template against a tenant id (for script) and the output sent as HTML to mimic email received
         async function previewLetterTemplate(templateId) {
             const tenantId = 2;
             const frame = document.getElementById('letter-preview-frame');
@@ -81,15 +89,15 @@
                 let responseText = await res.text();
 
                 let html = responseText;
-                const looksLikeUrl = /^(https?:)?\/\//i.test(responseText) || /\.html(?:$|\?)/i.test(responseText) || responseText.startsWith('/');
-                if (looksLikeUrl) {
+                const isURL = /^(https?:)?\/\//i.test(responseText) || /\.html(?:$|\?)/i.test(responseText) || responseText.startsWith('/');
+                if (isURL) {
                     try {
                         const fetchUrl = new URL(responseText, window.location.href).href;
-                        const fetched = await fetch(fetchUrl);
-                        if (fetched.ok) {
-                            const ct = fetched.headers.get('content-type') || '';
+                        const responseFromURL = await fetch(fetchUrl);
+                        if (responseFromURL.ok) {
+                            const ct = responseFromURL.headers.get('content-type') || '';
                             if (ct.includes('text/html') || fetchUrl.endsWith('.html')) {
-                                html = await fetched.text();
+                                html = await responseFromURL.text();
                             } else {
                                 frame.removeAttribute('srcdoc');
                                 frame.src = fetchUrl;
@@ -107,12 +115,12 @@
 
                 // If HTML is escaped (e.g. &lt;div&gt;), decode it
                 if (html.includes('&lt;') && html.includes('&gt;')) {
-                    const ta = document.createElement('textarea');
-                    ta.innerHTML = html;
-                    html = ta.value;
+                    const outputString = document.createElement('textarea');
+                    outputString.innerHTML = html;
+                    html = outputString.value;
                 }
 
-                // Create a blob so iframe navigates to a document and executes scripts/styles
+                // blob so HTML actually executes as rendered
                 try {
                     const blob = new Blob([html], { type: 'text/html' });
                     const blobUrl = URL.createObjectURL(blob);
