@@ -1,34 +1,8 @@
-# RentManager API QuickStart — JavaScript Port (Express + Angular)
+# RentManager API Letter Viewer
 
-This is a JavaScript port of LCS's original **RentManager 12 Web API QuickStart** (a
-C#/.NET console app). It's split into two parts on purpose:
+This is a JavaScript web app that displays all available Letter Templates within RentManager as rendered HTML. The reason it displays as HTML is so the User can view the Letter/Email Template as it is rendered for the Tenant. RentManager offers HTML in-line styling to be sent as a Letter Template, but, there is no way to view the HTML (other than an outside source) as it is rendered for the Tenant. Current solution is to go through the steps of sending an Email to an entity and waiting for the result in the inbox.
 
-- **`src/`** — an Express (Node.js) backend that talks to RentManager. It authenticates,
-  holds the API token, and proxies requests. **This is where your RentManager
-  credentials live.**
-- **`angular-example/`** — an Angular service + component showing how a frontend calls
-  *your* Express API instead of calling RentManager directly.
 
-## Why not call RentManager straight from Angular?
-
-RentManager's auth flow returns a bearer-style token (`X-RM12Api-ApiToken`) that must be
-sent on every request. Angular code runs in the user's browser — anything in it,
-including that token, is visible in dev tools / network tab. Routing through Express
-keeps the token and your RentManager username/password server-side only.
-
-## File-by-file mapping from the original C# project
-
-| Original (.NET)                                   | JS equivalent                              |
-|-----------------------------------------------------|---------------------------------------------|
-| `Helpers/HttpClientHelper.cs`                        | `src/helpers/rentManagerClient.js`           |
-| `ApiSamples/AuthorizationSamples.cs`                 | `src/services/authService.js`                |
-| `ApiSamples/ColorSamples.cs`                         | `src/services/colorService.js`               |
-| `ApiSamples/TenantSamples.cs`                        | `src/services/tenantService.js`              |
-| `ApiSamples/ReportSamples.cs`                        | `src/services/reportService.js`              |
-| `Program.cs` (demo run)                              | `src/index.js` (`npm run demo`)              |
-| `App.config`                                         | `.env` (via `src/config.js`)                 |
-| Models (`ColorModel.cs`, `TenantModel.cs`, etc.)     | Plain JS objects — RentManager already returns JSON, so no class definitions are needed; `angular-example/rent-manager.service.ts` has TypeScript interfaces for the fields you'll touch most. |
-| N/A (new)                                            | `src/app.js`, `src/routes/*.js` — Express server exposing the above as a small REST API for your frontend |
 
 ## Setup
 
@@ -44,20 +18,7 @@ cp .env.example .env
 ```bash
 npm start
 # Express listens on http://localhost:3000
-```
 
-Then in Angular, copy `angular-example/rent-manager.service.ts` into your app
-(`ng generate service rent-manager` and paste the contents, or drop the file in and
-register it), point `baseUrl` at your Express server, and inject `RentManagerService`
-wherever you need RentManager data. `example-usage.component.ts` shows a minimal
-usage pattern, including downloading a PDF report as a `Blob` (the Angular equivalent
-of the original app's `Process.Start(reportFile)`).
-
-**Option B — one-off demo script (like the original console app):**
-```bash
-npm run demo
-# Runs through the same sequence as Program.cs and logs progress to the console
-```
 
 ## Express API surface
 
@@ -86,4 +47,4 @@ npm run demo
   (`RM_REPORT_DIR` env var to override). For a multi-user server, generate unique
   filenames per request instead of the fixed `BalanceDue.pdf` / `OccupancyListing.pdf`
   names carried over from the original single-user desktop sample.
-- **Secrets**: never commit your real `.env`. Use your host's secret manager in production.
+- **Users**: Right now it currently just uses my login and has no auth form for other logins/locations/company codes
