@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../index.css">
+    <title>Script Builder</title>
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img alt="home" src="../resources/home.png"/></a>
+        <a href="report.html">Reports</a> |
+        <a href="letterTemplates.html"><img alt="letters" src="../resources/envelope.png" /></a>
+    </nav>
+    <div id="script-entry-container">
+        <form id="script-form">
+            <label for="script-entry">Script-Builder</label>
+            <input type="text" id="script-entry" />
+            <button type="submit" id="test-script-btn">Test Script</button>
+        </form>
+    </div>
+    <div id="script-output-container">
+        <pre id="script-output-textarea">*** See Script Output here</pre>
+    </div>
+    
+
+    <script>
+        // Wire form submit to send the input value as the POST body
+        document.getElementById('script-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const responseArea = document.getElementById('script-output-textarea');
+            const input = document.getElementById('script-entry');
+            const script = input.value;
+            responseArea.textContent = 'Running...';
+            try {
+                const res = await fetch('http://localhost:3000/scriptbuilder/tenant', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script })
+                });
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const contentType = res.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    const json = await res.json();
+                    responseArea.textContent = JSON.stringify(json, null, 2);
+                } else {
+                    const text = await res.text();
+                    responseArea.textContent = text;
+                }
+            } catch (err) {
+                responseArea.textContent = 'Error processing script...';
+                console.error('error sending script post request: ', err);
+            }
+        });
+
+
+    </script>
+</body>
+</html>
