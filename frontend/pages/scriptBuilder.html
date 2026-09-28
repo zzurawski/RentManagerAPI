@@ -47,6 +47,9 @@
                     const text = await res.text();
                     responseArea.textContent = text;
                 }
+                if(!res) {
+                    responseArea.textContent = "NO OUTPUT"
+                }
             } catch (err) {
                 responseArea.textContent = 'Error processing script...';
                 console.error('error sending script post request: ', err);

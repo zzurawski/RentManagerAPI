@@ -17,7 +17,7 @@ async function testTenantScript(script, tenantId) {
             MetaTag: null
         };
         console.log('testScript req: ', testScript);
-        const res = await rmClient.postSingle(`/Tenants/${tenantId}/TestScript`, testScript);
+        const res = await rmClient.postCollection(`/Tenants/${tenantId}/TestScript`, testScript);
         console.log('response from postSingle: ', res);
         return res;
     } catch (err) {
