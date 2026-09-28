@@ -3,15 +3,21 @@ const cors = require("cors");
 const config = require("./config");
 const ensureAuth = require("./helpers/auth");
 
+
+// RM API services for routing
 const colorsRouter = require("./routes/colors");
 const tenantsRouter = require("./routes/tenants");
 const reportsRouter = require("./routes/reports");
 const letterTemplatesRouter = require("./routes/letterTemplates");
 const tenantService = require("./services/tenantService");
 const letterService = require("./services/letterService");
+const scriptService = require("./services/scriptService");
+const scriptRouter = require("./routes/scriptBuilder");
 
 const app = express();
 
+
+// CORS stuff
 const allowedOrigins = config.allowedOrigins || [
   "http://localhost:3000",
   "http://localhost:4200",
@@ -36,12 +42,15 @@ app.use(
   })
 );
 
+
+// Routes for backend
 app.use("/", ensureAuth);
 
 app.use("/colors", colorsRouter);
 app.use("/tenants", tenantsRouter);
 app.use("/reports", reportsRouter);
 app.use("/lettertemplates", letterTemplatesRouter);
+app.use("/scriptbuilder", scriptRouter)
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
