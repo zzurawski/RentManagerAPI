@@ -15,52 +15,61 @@
         <a href="">SCRIPT</a>
     </nav>
 
-    <div id="entity-select-container">
-        <input id="entity-search" placeholder="Search tenants..." style="width:100%; box-sizing:border-box; padding:6px;" />
-        <ul id="entity-options" style="list-style:none; margin:0; padding:0; max-height:240px; overflow:auto;"></ul>
-    </div>
-
     <div id="scriptbuilder-container">
-    <div id="script-entry-container">
-        <form id="script-form">
-            <label for="script-entry">Script-Builder</label>
-            <textarea id="script-entry" rows="3" style="width:100%; box-sizing:border-box; resize:none; overflow:hidden;" placeholder="Enter script here..."></textarea>
-            <button type="button" id="test-script-btn">Test Script</button>
-        </form>
-    </div>
-    <div id="script-output-container">
-        <label for="script-output-textarea">Script Output</label>
-        <pre id="script-output-textarea">*** See Script Output here</pre>
-    </div>
+        <aside id="entity-select-container" class="panel">
+            <h2>Tenants</h2>
+            <input id="entity-search" placeholder="Search tenants..." />
+            <ul id="entity-options"></ul>
+        </aside>
+
+        <main id="script-entry-container" class="panel">
+            <form id="script-form">
+                <h2>Script Builder</h2>
+                <textarea id="script-entry" rows="4" placeholder="Enter script here...">[Lease.Unit.Name]</textarea>
+                <div class="controls">
+                    <button type="button" id="run-btn" class="btn btn-primary">Test Script</button>
+                    <button type="button" id="clear-btn" class="btn btn-ghost">Clear</button>
+                    <div style="margin-left:auto; color:var(--muted); font-size:0.9rem">Selected: <span id="selected-tenant">None</span></div>
+                </div>
+            </form>
+        </main>
+
+        <section id="script-output-container" class="panel">
+            <h2>Output</h2>
+            <pre id="script-output-textarea">*** See Script Output here</pre>
+        </section>
     </div>
 
     <script>
-        // Expand textarea height to fit content and allow Enter to insert newline
         const textarea = document.getElementById('script-entry');
         function autoResize() {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
         }
         textarea.addEventListener('input', autoResize);
-        // Prevent Enter from submitting the form; allow it to add newlines
+        // stop enter key from submit for textarea to grow
         textarea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                // Insert newline at cursor; default behavior already does this in textarea
-                // but prevent form submission by stopping propagation
                 e.stopPropagation();
             }
         });
 
-        // Use explicit button click to run the script
-        document.getElementById('test-script-btn').addEventListener('click', async () => {
+        // Use explicit button click to run the script (new UI buttons)
+        document.getElementById('run-btn').addEventListener('click', async () => {
             const responseArea = document.getElementById('script-output-textarea');
             const script = textarea.value;
+            const tenantId = selectedTenantId || (tenants && tenants.length ? (tenants[0].TenantID ?? tenants[0].tenantid) : null);
+            if (!tenantId) {
+                responseArea.textContent = 'Please select a tenant before running the script.';
+                return;
+            }
             responseArea.textContent = 'Running...';
             try {
+                console.debug('Posting script', { script, tenantId });
                 const res = await fetch('http://localhost:3000/scriptbuilder/tenant', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ script })
+                    body: JSON.stringify({ script, tenantId })
                 });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const contentType = res.headers.get('content-type') || '';
@@ -77,10 +86,17 @@
             }
         });
 
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            textarea.value = '';
+            autoResize();
+            document.getElementById('script-output-textarea').textContent = '';
+        });
+
         // Initialize size
         autoResize();
 
         // tenant dropdown for script testing
+        // I need to change this for multiple entities
         let tenants = [];
         let selectedTenantId = null;
 
@@ -91,15 +107,14 @@
                 const li = document.createElement('li');
                 const tenantName = t.Name ?? t.name ?? '';
                 const tenantId = t.TenantID ?? t.tenantid ?? '';
-                li.textContent = tenantName;
+                li.textContent = tenantName + ' • ' + tenantId;
                 li.dataset.tenantId = tenantId;
-                li.style.padding = '6px';
-                li.style.cursor = 'pointer';
                 li.addEventListener('click', () => {
                     selectedTenantId = tenantId;
                     document.getElementById('entity-search').value = tenantName;
-                    Array.from(list.children).forEach(s => s.style.backgroundColor = '');
-                    li.style.backgroundColor = '#e0e0e0';
+                    Array.from(list.children).forEach(s => s.classList.remove('selected'));
+                    li.classList.add('selected');
+                    document.getElementById('selected-tenant').textContent = tenantName + ' (' + tenantId + ')';
                 });
                 list.appendChild(li);
             });
@@ -129,6 +144,7 @@
 
         // Load tenants on startup
         loadTenants();
+
 
     </script>
 </body>

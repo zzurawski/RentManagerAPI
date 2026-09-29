@@ -1,75 +1,74 @@
-#report-list {
-    background-color: #f4f3ee;
-    overflow: scroll;
+:root{
+    --bg:#0f1720;
+    --card:#0b1220;
+    --muted:#94a3b8;
+    --accent:#0ea5a4;
+    --surface:#0b1220;
+    --panel:#0f1720;
+    --soft:#111827;
+    --white:#ffffff;
+}
+
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family: Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial;
+    background: linear-gradient(180deg,#071422 0%, #071827 100%);
+    color:var(--white);
+}
+
+nav{padding:12px 18px; display:flex; gap:12px; align-items:center}
+
+h2 {
+    color: #111827;
 }
 
 #scriptbuilder-container {
-    display: flex;
-    align-items: flex-start;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display:flex;
+    gap:24px;
+    align-items:flex-start;
+    padding:20px;
+    width:100%;
+    max-width:1200px;
+    margin:0 auto;
+    font-size: large;
+    color: #e2edfd;
 }
 
-label {
-    font-weight: bold;
-    border-bottom: 1px solid #353535;
-    width: 100%;
+.panel{
+    background: rgba(255,255,255,0.03);
+    border-radius:10px;
+    padding:16px;
+    box-shadow: 0 6px 20px rgba(2,6,23,0.6);
 }
 
-#script-entry-container {
-    display: block;
-    border: 1px solid #3c6e71;
-    background-color: #284b63;
-    color: #f4f3ee;
-    padding: 2%;
-    width: 40%;
-    margin-right: 10%;
+#entity-select-container{width:28%; min-width:220px}
+#script-entry-container{flex:1; min-width:320px}
+#script-output-container{width:40%; min-width:280px}
+
+h2{margin:0 0 10px 0; font-size:1.05rem; color:var(--white)}
+
+#entity-search{width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); color:var(--white)}
+
+#entity-options{list-style:none; margin-top:10px; padding:6px; max-height:44vh; overflow:auto;}
+#entity-options li{padding:10px; border-radius:8px; margin-bottom:6px; background:transparent; color:var(--muted); cursor:pointer; transition:all .12s}
+#entity-options li:hover{background:rgba(255,255,255,0.03); color:var(--white)}
+#entity-options li.selected{background:linear-gradient(90deg, rgba(14,165,164,0.12), rgba(14,165,164,0.06)); color:var(--white); box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02)}
+
+#script-entry{width:100%; min-height:120px; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); color:var(--white); resize:vertical}
+
+.controls{display:flex; gap:12px; margin-top:12px; align-items:center}
+.btn{padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:600}
+.btn-primary{background:linear-gradient(90deg,var(--accent),#06b6b9); color:var(--panel)}
+.btn-ghost{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--white)}
+
+#script-output-textarea{white-space:pre-wrap; padding:12px; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); max-height:60vh; overflow:auto; min-height:160px}
+
+@media (max-width:900px){
+    #scriptbuilder-container{flex-direction:column; padding:12px}
+    #entity-select-container, #script-output-container{width:100%}
 }
 
-#script-entry {
-    min-width: 95%;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: start;
-    background-color: #FFFFFF;
-}
-
-#script-form {
-    width: 100%;
-}
-
-#test-script-btn {
-    border: 1px solid #679289;
-    background-color: #071e22;
-    border-radius: 5px;
-    color: #FFFFFF;
-
-}
-
-button:hover {
-    cursor: pointer;
-}
-
-#script-output-container {
-    display: flexbox;
-    width: 50%;
-    border: 1px solid #284b63;
-    background-color: #3c6e71;
-    color: #f4f3ee;
-    min-height: 50vh;
-}
-
-#script-output-textarea {
-    border: 1px solid #679289;
-    border-radius: 5px;
-    background-color: #f4f3ee;
-    color: #071E22;
-    word-wrap: break-word;
-    overflow: scroll;
-    max-height: 60vh;
-}
-
-#entity-select-container {
-    background-color: white;
-    border: 2px solid red;
-    color: black;
-}
+/* small tweaks for legacy ids */
+#script-form{width:100%}
+#test-script-btn{display:none}
