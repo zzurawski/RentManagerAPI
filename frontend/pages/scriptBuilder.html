@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../index.css">
+    <link rel="stylesheet" href="./pages.css">
     <title>Script Builder</title>
 </head>
 <body>
@@ -11,26 +12,49 @@
         <a href="../index.html"><img alt="home" src="../resources/home.png"/></a>
         <a href="report.html">Reports</a> |
         <a href="letterTemplates.html"><img alt="letters" src="../resources/envelope.png" /></a>
+        <a href="">SCRIPT</a>
     </nav>
+
+    <div id="entity-select-container">
+        <input id="entity-search" placeholder="Search tenants..." style="width:100%; box-sizing:border-box; padding:6px;" />
+        <ul id="entity-options" style="list-style:none; margin:0; padding:0; max-height:240px; overflow:auto;"></ul>
+    </div>
+
+    <div id="scriptbuilder-container">
     <div id="script-entry-container">
         <form id="script-form">
             <label for="script-entry">Script-Builder</label>
-            <input type="text" id="script-entry" />
-            <button type="submit" id="test-script-btn">Test Script</button>
+            <textarea id="script-entry" rows="3" style="width:100%; box-sizing:border-box; resize:none; overflow:hidden;" placeholder="Enter script here..."></textarea>
+            <button type="button" id="test-script-btn">Test Script</button>
         </form>
     </div>
     <div id="script-output-container">
+        <label for="script-output-textarea">Script Output</label>
         <pre id="script-output-textarea">*** See Script Output here</pre>
     </div>
-    
+    </div>
 
     <script>
-        // Wire form submit to send the input value as the POST body
-        document.getElementById('script-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Expand textarea height to fit content and allow Enter to insert newline
+        const textarea = document.getElementById('script-entry');
+        function autoResize() {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+        textarea.addEventListener('input', autoResize);
+        // Prevent Enter from submitting the form; allow it to add newlines
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                // Insert newline at cursor; default behavior already does this in textarea
+                // but prevent form submission by stopping propagation
+                e.stopPropagation();
+            }
+        });
+
+        // Use explicit button click to run the script
+        document.getElementById('test-script-btn').addEventListener('click', async () => {
             const responseArea = document.getElementById('script-output-textarea');
-            const input = document.getElementById('script-entry');
-            const script = input.value;
+            const script = textarea.value;
             responseArea.textContent = 'Running...';
             try {
                 const res = await fetch('http://localhost:3000/scriptbuilder/tenant', {
@@ -42,13 +66,10 @@
                 const contentType = res.headers.get('content-type') || '';
                 if (contentType.includes('application/json')) {
                     const json = await res.json();
-                    responseArea.textContent = JSON.stringify(json, null, 2);
+                    responseArea.textContent = json;
                 } else {
                     const text = await res.text();
                     responseArea.textContent = text;
-                }
-                if(!res) {
-                    responseArea.textContent = "NO OUTPUT"
                 }
             } catch (err) {
                 responseArea.textContent = 'Error processing script...';
@@ -56,6 +77,58 @@
             }
         });
 
+        // Initialize size
+        autoResize();
+
+        // tenant dropdown for script testing
+        let tenants = [];
+        let selectedTenantId = null;
+
+        function renderTenantList(items) {
+            const list = document.getElementById('entity-options');
+            list.innerHTML = '';
+            items.forEach(t => {
+                const li = document.createElement('li');
+                const tenantName = t.Name ?? t.name ?? '';
+                const tenantId = t.TenantID ?? t.tenantid ?? '';
+                li.textContent = tenantName;
+                li.dataset.tenantId = tenantId;
+                li.style.padding = '6px';
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', () => {
+                    selectedTenantId = tenantId;
+                    document.getElementById('entity-search').value = tenantName;
+                    Array.from(list.children).forEach(s => s.style.backgroundColor = '');
+                    li.style.backgroundColor = '#e0e0e0';
+                });
+                list.appendChild(li);
+            });
+        }
+
+        async function loadTenants() {
+            try {
+                const res = await fetch('http://localhost:3000/tenants');
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                tenants = await res.json();
+                renderTenantList(tenants);
+            } catch (err) {
+                console.error('Error loading tenants:', err);
+            }
+        }
+
+        // Filter tenants based on search input or textarea content
+        const entitySearch = document.getElementById('entity-search');
+        function filterAndRender() {
+            const q = (entitySearch.value || textarea.value || '').trim().toLowerCase();
+            if (!q) return renderTenantList(tenants);
+            const filtered = tenants.filter(t => (t.Name ?? t.name ?? '').toLowerCase().includes(q));
+            renderTenantList(filtered);
+        }
+        entitySearch.addEventListener('input', filterAndRender);
+        textarea.addEventListener('input', filterAndRender);
+
+        // Load tenants on startup
+        loadTenants();
 
     </script>
 </body>
