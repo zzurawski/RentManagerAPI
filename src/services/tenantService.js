@@ -33,7 +33,7 @@ async function getSelectedFields() {
 
 async function getTenantsBalance() {
   const balanceAmount = 0;
-  return rmClient.getCollection(`/tenants?embeds=Balance&fields=Name&filters=balance,gt,${balanceAmount}`);
+  return rmClient.getCollection(`/tenants?embeds=Balance&fields=Name,TenantID&filters=balance,gt,${balanceAmount}`);
 }
 
 async function getById(tenantId) {
@@ -48,6 +48,10 @@ async function getWithEmbeds(tenantId) {
   return rmClient.getSingle(
     `/tenants/${tenantId}?embeds=Addresses,Color,Contacts,PrimaryContact,PrimaryContactPhoneNumbers,Property`
   );
+}
+
+async function getByName(name) {
+  return rmClient.getCollection(`/tenants?filters=Name,ct,${name}`)
 }
 
 // POST functions
@@ -103,4 +107,5 @@ module.exports = {
   getContacts,
   getAddresses,
   getPrimaryContact,
+  getByName,
 };

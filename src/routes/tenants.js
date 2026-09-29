@@ -31,6 +31,18 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// get by name search
+/*router.get("?filters=name,ct,:name", async (req, res, next) => {
+  try {
+    // do stuff
+    res.json(await tenantService.getByName(name))
+    console.log("running request to get by name using ", name);
+  } catch (err) {
+    console.log("error: ", err);
+    next(err);
+  }
+});*/
+
 // GET /api/tenants/:id?embeds=full|addressesAndContacts
 router.get("/:id", async (req, res, next) => {
   try {
