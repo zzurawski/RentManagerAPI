@@ -1,0 +1,75 @@
+#report-list {
+    background-color: #f4f3ee;
+    overflow: scroll;
+}
+
+#scriptbuilder-container {
+    display: flex;
+    align-items: flex-start;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+label {
+    font-weight: bold;
+    border-bottom: 1px solid #353535;
+    width: 100%;
+}
+
+#script-entry-container {
+    display: block;
+    border: 1px solid #3c6e71;
+    background-color: #284b63;
+    color: #f4f3ee;
+    padding: 2%;
+    width: 40%;
+    margin-right: 10%;
+}
+
+#script-entry {
+    min-width: 95%;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: start;
+    background-color: #FFFFFF;
+}
+
+#script-form {
+    width: 100%;
+}
+
+#test-script-btn {
+    border: 1px solid #679289;
+    background-color: #071e22;
+    border-radius: 5px;
+    color: #FFFFFF;
+
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+#script-output-container {
+    display: flexbox;
+    width: 50%;
+    border: 1px solid #284b63;
+    background-color: #3c6e71;
+    color: #f4f3ee;
+    min-height: 50vh;
+}
+
+#script-output-textarea {
+    border: 1px solid #679289;
+    border-radius: 5px;
+    background-color: #f4f3ee;
+    color: #071E22;
+    word-wrap: break-word;
+    overflow: scroll;
+    max-height: 60vh;
+}
+
+#entity-select-container {
+    background-color: white;
+    border: 2px solid red;
+    color: black;
+}

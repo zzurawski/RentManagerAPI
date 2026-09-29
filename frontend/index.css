@@ -6,28 +6,28 @@ html {
 }
 
 body {
-    background-color: #2b2828;
+    background-color: #353535;
     color: #f5efef;
     font-family: Arial, sans-serif;
     overflow: hidden;
     max-height: 100vh;
+    margin: 0;
 }
 
 /* Navigation bar styles */
 
 nav {
-    background-color: #2793db;
+    background-color: #d9d9d9;
+    color: #353535;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 20px;
     align-items: center;
-    width: 100vw;
     overflow: hidden;
-    border: 1px solid black;
 }
 
 nav a {
-    color: #fff;
+    color: #353535;
     text-decoration: none;
     margin-right: 15px;
     padding: 5px 10px;
@@ -35,7 +35,8 @@ nav a {
 }
 
 nav a:hover {
-    background-color: #1a73e8;
+    background-color: #3c6e71;
+    color: #ffffff;
     border-radius: 3px;
     font-weight: bold;
 }
@@ -66,6 +67,12 @@ nav:hover {
     border: 2px solid yellow
 }
 
+#dbid-info {
+    font-size: small;
+    margin-left: 40%;
+    position: sticky;
+}
+
 /* Content container styles */
 
 div {
@@ -75,9 +82,9 @@ div {
 }
 
 #tenant-list{
-    background-color: #fff;
-    color: #000;
-    border: 1px solid #ccc;
+    background-color: #ffffff;
+    color: #353535;
+    border: 1px solid #d9d9d9;
     border-radius: 5px;
     padding: 10px;
     max-height: 75vh;
@@ -109,9 +116,9 @@ div {
 }
 
 #template-names {
-    background-color: #fff;
+    background-color: #ffffff;
     color: #000;
-    border: 1px solid #ccc;
+    border: 1px solid #d9d9d9;
     border-radius: 5px;
     padding: 10px;
     max-height: 75vh;
@@ -126,15 +133,15 @@ div {
 #template-names li {
     cursor: pointer;
     padding: 5px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ffffff;
     font-size: 12px;
     overflow: auto;
 }
 
 #template-content {
-    background-color: #fff;
-    color: #000;
-    border: 1px solid #ccc;
+    background-color: #ffffff;
+    color: #353535;
+    border: 1px solid #d9d9d9;
     border-radius: 5px;
     padding: 0px;
     max-height: 75vh;
@@ -144,8 +151,8 @@ div {
 h2 {
     margin: 0;
     text-align: center;
-    border-bottom: 1px solid #ccc;
-    background-color: #e7e7e7;
+    border-bottom: 1px solid #ffffff;
+    background-color: #d9d9d9;
     box-shadow: 1px rgba(0, 0, 0, 0.644);
     border-radius: 5px 5px 0 0;
 }
