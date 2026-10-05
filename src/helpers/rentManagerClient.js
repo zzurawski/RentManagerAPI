@@ -112,7 +112,10 @@ function getClient() {
 async function reauthorize() {
   // Perform a lightweight authorization POST to obtain a new token.
   try {
-    const url = (config.baseURL || '') + 'Authentication/AuthorizeUser';
+    // prefer the current client's baseURL (may have been changed transiently at login)
+    const client = getClient();
+    const base = (client && client.defaults && client.defaults.baseURL) ? client.defaults.baseURL : (config.baseURL || '');
+    const url = base + 'Authentication/AuthorizeUser';
     const data = {
       Username: process.env.RM_USERNAME || config.username,
       Password: process.env.RM_PASSWORD || config.password,
@@ -166,11 +169,21 @@ function setApiToken(apiToken) {
   return apiToken;
 }
 
+// Set API token in-memory only (do not persist to .env)
+function setApiTokenTransient(apiToken) {
+  _apiToken = apiToken;
+  const client = getClient();
+  try { client.defaults.headers.common["X-RM12Api-ApiToken"] = apiToken; } catch (e) {}
+  process.env.API_TOKEN = apiToken || '';
+  return apiToken;
+}
+
 function getApiToken() {
   // Prefer in-memory but validate against stored timestamps
   try {
     const env = readEnvSync(ENV_PATH);
-    const token = env.API_TOKEN || process.env.API_TOKEN || _apiToken;
+    const persisted = Boolean(env.API_TOKEN);
+    const token = (env.API_TOKEN) || process.env.API_TOKEN || _apiToken;
     if (!token) return null;
 
     const created = env.API_TOKEN_CREATED;
@@ -197,9 +210,12 @@ function getApiToken() {
     // token is valid — update in-memory and bump last activity
     _apiToken = token;
     try { getClient().defaults.headers.common['X-RM12Api-ApiToken'] = _apiToken; } catch (e) {}
-    const nowIso = new Date().toISOString();
-    try { writeEnvSync(ENV_PATH, { API_TOKEN_LAST_ACTIVITY: nowIso, API_TOKEN: _apiToken }); } catch (e) {}
     process.env.API_TOKEN = _apiToken;
+    // Only persist last-activity if the token originally came from .env (persisted token)
+    if (persisted) {
+      const nowIso = new Date().toISOString();
+      try { writeEnvSync(ENV_PATH, { API_TOKEN_LAST_ACTIVITY: nowIso, API_TOKEN: _apiToken }); } catch (e) {}
+    }
     return _apiToken;
   } catch (e) {
     console.error('Error reading API token from .env:', e && e.message ? e.message : e);
@@ -250,6 +266,7 @@ async function postCollection(url, updateModels) {
 module.exports = {
   getClient,
   setApiToken,
+  setApiTokenTransient,
   getApiToken,
   getSingle,
   getCollection,

@@ -13,6 +13,7 @@
         <a href="../index.html">Home</a> |
         <a href="report.html">Report</a> |
         <a href="tenants.html">Tenants</a>
+        <span id="nav-user-info" style="margin-left:12px; color:var(--muted)">Not signed in</span>
     </nav>
 
     <div id="status">Loading report from server...</div>
@@ -23,11 +24,15 @@
         <input type="button" value="Run Report" onclick="loadReport()">
     </form>
     <script>
+        function getRmToken() { return localStorage.getItem('rm_api_token') || window.rmApiToken || ''; }
+
         async function loadReport() {
             try {
                 const propertyIds = document.getElementById('propertyIds').value;
                 const asOfDate = document.getElementById('asOfDate').value;
-                const res = await fetch(`http://localhost:3000/reports/occupancy-listing?propertyIds=${propertyIds}&asOfDate=${asOfDate}`);
+                const token = getRmToken();
+                const url = `http://localhost:3000/reports/occupancy-listing?propertyIds=${encodeURIComponent(propertyIds)}&asOfDate=${encodeURIComponent(asOfDate)}`;
+                const res = await fetch(url, { headers: token ? { 'X-RM12Api-ApiToken': token } : {} });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const reportHtml = await res.text();
                 document.getElementById('status').textContent = '';
@@ -44,6 +49,16 @@
                 loadReport();
             }
         });
+
+        // populate nav user info from localStorage
+        (function populateNav() {
+            try {
+                const user = localStorage.getItem('rm_api_user');
+                const dbid = localStorage.getItem('rm_api_dbid');
+                const nav = document.getElementById('nav-user-info');
+                if (user && dbid) nav.textContent = user + ' @ ' + dbid;
+            } catch (e) { }
+        })();
     </script>
 </body>
 </html>

@@ -2,10 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const config = require("./config");
 const ensureAuth = require("./helpers/auth");
-
+const path = require('path');
 
 // RM API services for routing
-const colorsRouter = require("./routes/colors");
 const tenantsRouter = require("./routes/tenants");
 const reportsRouter = require("./routes/reports");
 const letterTemplatesRouter = require("./routes/letterTemplates");
@@ -43,10 +42,16 @@ app.use(
 );
 
 
-// Routes for backend
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// Expose /login before the auth middleware so a user can authenticate
+app.use("/login", require("./routes/login"));
+
+// Protect all other routes
 app.use("/", ensureAuth);
 
-app.use("/colors", colorsRouter);
+// Routes for backend
 app.use("/tenants", tenantsRouter);
 app.use("/reports", reportsRouter);
 app.use("/lettertemplates", letterTemplatesRouter);
