@@ -50,7 +50,8 @@ app.use("/colors", colorsRouter);
 app.use("/tenants", tenantsRouter);
 app.use("/reports", reportsRouter);
 app.use("/lettertemplates", letterTemplatesRouter);
-app.use("/scriptbuilder", scriptRouter)
+app.use("/scriptbuilder", scriptRouter);
+app.use("/entities", require("./routes/entity"));
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 

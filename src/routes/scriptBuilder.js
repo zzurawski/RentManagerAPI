@@ -3,13 +3,13 @@ const router = express.Router();
 const scriptService = require("../services/scriptService");
 
 // POST script request to local backend pulling data from RM API
-router.post("/tenant", async (req, res, next) => {
+router.post("/entity", async (req, res, next) => {
     try {
 
-        const { script, tenantId } = req.body || {};
-        console.log('script returned: ', script, ' tenantId: ', tenantId);
+        const { script, entityId, entityType } = req.body || {};
+        console.log('script returned: ', script, ' entityId: ', entityId, ' entityType: ', entityType);
 
-        const result = await scriptService.testTenantScript(script, tenantId);
+        const result = await scriptService.testEntityScript(script, entityId, entityType);
         if (result === null || result === undefined) {
             return res.status(204).send();
         }

@@ -21,10 +21,10 @@
             <div class="dropdown" id="entity-type-dropdown">
                 <button id="entity-type-button" class="dropdown-toggle">Tenant ▾</button>
                 <div id="entity-type-menu" class="dropdown-menu" style="display:none">
-                    <button data-entity="Owner">Owner</button>
-                    <button data-entity="Tenant">Tenant</button>
-                    <button data-entity="Prospect">Prospect</button>
-                    <button data-entity="Property">Property</button>
+                    <button data-entity="Owners">Owners</button>
+                    <button data-entity="Tenants">Tenants</button>
+                    <button data-entity="Prospects">Prospects</button>
+                    <button data-entity="Properties">Properties</button>
                 </div>
             </div>
         </aside>
@@ -74,15 +74,16 @@
             entityTypeButton.textContent = selectedEntityType + ' ▾';
             document.getElementById('entity-select-header').textContent = selectedEntityType;
             entityTypeMenu.style.display = 'none';
+            loadEntities(selectedEntityType);
         });
 
         // change options of entity list based on dropdown selection
-        async function loadEntities() {
+        async function loadEntities(selectedEntityType) {
             try {
-                const res = await fetch(`http://localhost:3000/${selectedEntityType.toLowerCase()}s`);
+                const res = await fetch(`http://localhost:3000/entities/${selectedEntityType.toLowerCase()}`);
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const entities = await res.json();
-                renderTenantList(entities);
+                renderEntityList(entities);
             } catch (err) {
                 console.error('Error loading entities:', err);
             }
@@ -115,22 +116,24 @@
             }
         });
 
+        // SCRIPT BUILDER STUFF
         // Use button to run script and show output in the output textarea
         document.getElementById('run-btn').addEventListener('click', async () => {
             const responseArea = document.getElementById('script-output-textarea');
             const script = textarea.value;
-            const tenantId = selectedTenantId || (tenants && tenants.length ? (tenants[0].TenantID ?? tenants[0].tenantid) : null);
-            if (!tenantId) {
-                responseArea.textContent = 'Please select a tenant before running the script.';
+            const entityId = selectedEntityId;
+            const entityType = selectedEntityType;
+            if (!entityId) {
+                responseArea.textContent = 'Please select an entity before running the script.';
                 return;
             }
             responseArea.textContent = 'Running...';
             try {
-                console.debug('Posting script', { script, tenantId });
-                const res = await fetch('http://localhost:3000/scriptbuilder/tenant', {
+                console.debug('Posting script', { script, entityId, entityType });
+                const res = await fetch('http://localhost:3000/scriptbuilder/entity', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ script, tenantId })
+                    body: JSON.stringify({ script, entityId, entityType })
                 });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const contentType = res.headers.get('content-type') || '';
@@ -159,54 +162,58 @@
         // tenant dropdown for script testing
         // I need to change this for multiple entities
         let tenants = [];
-        let selectedTenantId = null;
+        let selectedEntityId = null;
 
-        function renderTenantList(items) {
+        // DONE: make this so it works for multiple entity types, not just tenants
+        function renderEntityList(items) {
             const list = document.getElementById('entity-options');
             list.innerHTML = '';
             items.forEach(t => {
                 const li = document.createElement('li');
-                const tenantName = t.Name ?? t.name ?? '';
-                const tenantId = t.TenantID ?? t.tenantid ?? '';
-                li.textContent = tenantName + ' • ' + tenantId;
-                li.dataset.tenantId = tenantId;
+                const entityName = t.Name ?? t.name ?? '';
+                let entityId = '';
+                // change ID to match the selected entity type
+                switch (selectedEntityType) {
+                    case 'Owners':
+                        li.textContent = entityName + ' • ' + (t.OwnerID ?? t.ownerid ?? '');
+                        entityId = t.OwnerID ?? t.ownerid ?? '';
+                        break;
+                    case 'Prospects':
+                        li.textContent = entityName + ' • ' + (t.ProspectID ?? t.prospectid ?? '');
+                        entityId = t.ProspectID ?? t.prospectid ?? '';
+                        break;
+                    case 'Properties':
+                        li.textContent = entityName + ' • ' + (t.PropertyID ?? t.propertyid ?? '');
+                        entityId = t.PropertyID ?? t.propertyid ?? '';
+                        break;
+                    default:
+                        li.textContent = entityName + ' • ' + (t.TenantID ?? t.tenantid ?? '');
+                        entityId = t.TenantID ?? t.tenantid ?? '';
+                }
                 li.addEventListener('click', () => {
-                    selectedTenantId = tenantId;
-                    document.getElementById('entity-search').value = tenantName;
+                    selectedEntityId = entityId;
+                    document.getElementById('entity-search').value = entityName;
                     Array.from(list.children).forEach(s => s.classList.remove('selected'));
                     li.classList.add('selected');
-                    document.getElementById('selected-tenant').textContent = tenantName + ' (' + tenantId + ')';
+                    document.getElementById('selected-tenant').textContent = entityName + ' (' + entityId + ')';
                 });
                 list.appendChild(li);
             });
         }
 
-
-        // GET TENANTS FROM API AND RENDER
-        async function loadTenants() {
-            try {
-                const res = await fetch('http://localhost:3000/tenants');
-                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
-                tenants = await res.json();
-                renderTenantList(tenants);
-            } catch (err) {
-                console.error('Error loading tenants:', err);
-            }
-        }
-
-        // Filter tenants based on search input or textarea content
+        // Filter entities based on search input or textarea content
         const entitySearch = document.getElementById('entity-search');
         function filterAndRender() {
             const q = (entitySearch.value || textarea.value || '').trim().toLowerCase();
-            if (!q) return renderTenantList(tenants);
+            if (!q) return renderEntityList(tenants);
             const filtered = tenants.filter(t => (t.Name ?? t.name ?? '').toLowerCase().includes(q));
-            renderTenantList(filtered);
+            renderEntityList(filtered);
         }
         entitySearch.addEventListener('input', filterAndRender);
         textarea.addEventListener('input', filterAndRender);
 
-        // Load tenants on startup
-        loadTenants();
+        // Load entities on startup
+        loadEntities('Tenants');
 
 
     </script>
