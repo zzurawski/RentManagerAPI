@@ -1,8 +1,8 @@
 const rmClient = require("../helpers/rentManagerClient");
 const getTenant = require("./tenantService")
 
-// Tenant Script Test
-async function testTenantScript(script, tenantId) {
+// Entity Script Test
+async function testEntityScript(script, entityId, entityType) {
     try {
         /* setting this manually for test
         const testScript = {
@@ -17,7 +17,7 @@ async function testTenantScript(script, tenantId) {
             MetaTag: null
         };
         console.log('testScript req: ', testScript);
-        const res = await rmClient.postCollection(`/Tenants/${tenantId}/TestScript`, testScript);
+        const res = await rmClient.postCollection(`/${entityType}/${entityId}/TestScript`, testScript);
         console.log('response from postSingle: ', res);
         return res;
     } catch (err) {
@@ -26,5 +26,5 @@ async function testTenantScript(script, tenantId) {
 };
 
 module.exports = {
-    testTenantScript
+    testEntityScript
 }
