@@ -15,46 +15,107 @@
 </head>
 <body>
   <nav>
-    <a href="../frontend/index.html">Home</a> 
-    <a href="./pages/report.html">Report</a> 
-    <a href="./pages/tenants.html">Tenants</a>
+    <a href="../frontend/index.html">Home</a>
+    <a href="./pages/report.html">Report</a>
     <a href="./pages/letterTemplates.html">Letter Templates</a>
-    <span id="dbid-info">logged into: lcs-cxteam</span>
+    <a href="./pages/scriptBuilder.html">SCRIPT</a>
+    <span id="nav-user-info" style="right:10%; color:#ff4949;text-align: end">Not signed in</span>
+    <button id="logout-btn" style="margin-left:12px; display:none;">Logout</button>
   </nav>
-  <div>
-    <p id="status" aria-live="polite">Loading tenants...</p>
-    <ul id="tenant-list" aria-live="polite"></ul>
+  <div id="login-form-container">
+    <form id="login-form">
+      <label for="user">User:</label>
+      <input type="text" id="user" name="user" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <label for="dbid">DBID:</label>
+      <input type="text" id="dbid" name="dbid" required>
+      <button type="submit" id="login-btn">Login</button>
+    </form>
   </div>
+  <div id="status" aria-live="polite"></div>
+  <div id="content"></div>
 
   <script>
-    async function loadTenants() {
-      const status = document.getElementById('status');
-      const list = document.getElementById('tenant-list');
-      try {
-        const res = await fetch('http://localhost:3000/tenants');
-        if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
-        const tenants = await res.json();
-        status.textContent="";
-
-        if (!Array.isArray(tenants) || tenants.length === 0) {
-          status.textContent = 'No tenants found.';
-          return;
-        }
-
-        tenants.forEach((t) => {
-          const li = document.createElement('li');
-          const pre = document.createElement('pre');
-          pre.textContent = JSON.stringify(t, null, 2);
-          li.appendChild(pre);
-          list.appendChild(li);
-        });
-      } catch (err) {
-        status.textContent = 'Error getting tenants: ' + err.message;
-        console.error('Error getting tenants:', err);
-      }
+    async function doLogin(user, password, dbid) {
+      const payload = { user: user.trim(), password: password.trim(), dbid: dbid.trim() };
+      if (!payload.user || !payload.password || !payload.dbid) throw new Error('User, password, and dbid are required');
+      const origin =  'http://localhost:3000';
+      const endpoint = origin + '/login';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error(text || 'Login failed');
+      try { return JSON.parse(text); } catch { return text; }
     }
 
-    document.addEventListener('DOMContentLoaded', loadTenants);
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('status');
+      const content = document.getElementById('content');
+      status.textContent = 'Logging in...';
+      content.textContent = '';
+      const user = document.getElementById('user').value;
+      const password = document.getElementById('password').value;
+      const dbid = document.getElementById('dbid').value;
+      try {
+        const result = await doLogin(user, password, dbid);
+        // store token locally for use by other pages
+        const apiToken = (result && result.apiToken) ? result.apiToken : (typeof result === 'string' ? result : null);
+        if (apiToken) {
+            try {
+              localStorage.setItem('rm_api_token', apiToken);
+              localStorage.setItem('rm_api_user', user);
+              localStorage.setItem('rm_api_dbid', dbid);
+              window.rmApiToken = apiToken;
+            } catch (e) {console.warn('Failed to store API token in localStorage', e);}
+        }
+        status.textContent = 'Login successful';
+        content.innerHTML = '<pre>' + (typeof result === 'string' ? result : JSON.stringify(result, null, 2)) + '</pre>';
+        document.getElementById('dbid-info').textContent = 'logged into: ' + dbid;
+          // update navbar user info and show logout
+          const navInfo = document.getElementById('nav-user-info');
+          if (navInfo) navInfo.textContent = user + ' @ ' + dbid;
+          const logoutBtn = document.getElementById('logout-btn');
+          if (logoutBtn) logoutBtn.style.display = 'inline-block';
+      } catch (err) {
+        status.textContent = 'Login failed';
+        content.innerHTML = '<div style="color:#ffb4b4">' + (err.message || String(err)) + '</div>';
+        console.error('Login error', err);
+      }
+    });
+
+  // initialize navbar state from localStorage
+  (function initNav() {
+    try {
+      const user = localStorage.getItem('rm_api_user');
+      const dbid = localStorage.getItem('rm_api_dbid');
+      const navInfo = document.getElementById('nav-user-info');
+      const logoutBtn = document.getElementById('logout-btn');
+      if (user && dbid) {
+        if (navInfo) navInfo.textContent = user + ' - ' + dbid;
+        navInfo.style.color = 'greenyellow';
+        if (logoutBtn) logoutBtn.style.display = 'inline-block';
+      } else {
+        if (navInfo) navInfo.textContent = '-- Not signed in --';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+      }
+      if (logoutBtn) logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('rm_api_token');
+        localStorage.removeItem('rm_api_user');
+        localStorage.removeItem('rm_api_dbid');
+        window.rmApiToken = undefined;
+        if (navInfo) navInfo.textContent = '-- Not signed in --';
+        navInfo.style.color = 'red';
+        logoutBtn.style.display = 'none';
+        document.getElementById('status').textContent = 'Logged out';
+        document.getElementById('content').textContent = '';
+      });
+    } catch (e) { /* ignore */ }
+  })();
   </script>
 </body>
 </html>

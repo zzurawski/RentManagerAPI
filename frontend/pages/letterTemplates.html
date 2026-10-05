@@ -13,6 +13,7 @@
         <a href="report.html">Reports</a> |
         <a href="letterTemplates.html"><img alt="letters" src="../resources/envelope.png" /></a>
         <a href="scriptBuilder.html"> SCRIPT</a>
+        <span id="nav-user-info" style="margin-left:12px; color:var(--muted)">Not signed in</span>
     </nav>
 
     <div id="header">
@@ -38,9 +39,12 @@
 
     <script>
         // grabs the Letter Templates from RM and shows the names
+        function getRmToken() { return localStorage.getItem('rm_api_token') || window.rmApiToken || ''; }
+
         async function loadLetterTemplates() {
             try {
-                const res = await fetch('http://localhost:3000/lettertemplates');
+            const token = getRmToken();
+            const res = await fetch('http://localhost:3000/lettertemplates', { headers: token ? { 'X-RM12Api-ApiToken': token } : {} });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 
                 const letterTemplates = await res.json();
@@ -73,6 +77,16 @@
         // get Letter templates immediately
         window.onload = loadLetterTemplates;
 
+        // populate nav user info from localStorage
+        (function populateNav() {
+            try {
+                const user = localStorage.getItem('rm_api_user');
+                const dbid = localStorage.getItem('rm_api_dbid');
+                const nav = document.getElementById('nav-user-info');
+                if (user && dbid) nav.textContent = user + ' @ ' + dbid;
+            } catch (e) { }
+        })();
+
         window._lastLetterPreviewUrl = null;
         window.addEventListener('unload', () => {
             if (window._lastLetterPreviewUrl) URL.revokeObjectURL(window._lastLetterPreviewUrl);
@@ -84,7 +98,8 @@
             const frame = document.getElementById('letter-preview-frame');
             frame.srcdoc = '<p>Loading letter template content...</p>';
             try {
-                const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview/${tenantId}`);
+                const token = getRmToken();
+                const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview/${tenantId}`, { headers: token ? { 'X-RM12Api-ApiToken': token } : {} });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 
                 let responseText = await res.text();

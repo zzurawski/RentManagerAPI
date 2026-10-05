@@ -2,6 +2,10 @@
 <title>${{template}}</title>
 </head>
 	<body style="margin:0;padding:0;background-color:#ffecec;font-family:Georgia,serif;">
+	<nav style="padding:8px;background:transparent">
+		<a href="../index.html">Home</a>
+		<span id="nav-user-info" style="margin-left:12px; color:#333">Not signed in</span>
+	</nav>
 		<div id="letter-preview-frame">
 			<p>
 				
@@ -13,7 +17,8 @@
 		
 		const frame = document.getElementById('letter-preview-frame');
 		try {
-			const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview?tenantId=${tenantId}`);
+			const token = localStorage.getItem('rm_api_token') || window.rmApiToken || '';
+			const res = await fetch(`http://localhost:3000/lettertemplates/${templateId}/preview?tenantId=${tenantId}`, { headers: token ? { 'X-RM12Api-ApiToken': token } : {} });
 			if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
 			const htmlContent = await res.text();
 			frame.contentDocument.open();
@@ -28,6 +33,15 @@
 	}
 
 	window.onload = previewLetterTemplate(194,2);
+
+	(function populateNav() {
+		try {
+			const user = localStorage.getItem('rm_api_user');
+			const dbid = localStorage.getItem('rm_api_dbid');
+			const nav = document.getElementById('nav-user-info');
+			if (user && dbid) nav.textContent = user + ' @ ' + dbid;
+		} catch (e) {}
+	})();
 </script>
 </body>
 </html>

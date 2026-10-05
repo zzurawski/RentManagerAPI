@@ -97,3 +97,17 @@ h2{ margin:0; font-size:1.05rem }
 body, nav a, #dbid-info, li, pre { font-size: 15px; line-height:1.45 }
 
 @media (max-width:700px){ body, nav a, #dbid-info, li, pre { font-size:14px } }
+
+/* Login form styling to match dark theme */
+#login-form-container{display:flex; justify-content:center; padding:18px}
+#login-form{background:rgba(255,255,255,0.03); padding:18px; border-radius:10px; width:100%; max-width:520px; box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+#login-form label{display:block; color:var(--white); font-weight:600; margin-top:12px; margin-bottom:6px}
+#login-form input{width:90%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(124, 124, 124, 0.596); color:var(--white); font-size:15px}
+#login-form button{margin-top:14px; padding:10px 14px; border-radius:10px; border:1px solid white; background:linear-gradient(90deg,var(--accent),#06b6b9); color:var(--panel); font-weight:700; cursor:pointer}
+#login-form button:hover{opacity:0.95}
+#status{margin-top:12px; color: #cfe8ef; font-weight:600}
+#content pre{background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; color:var(--white); overflow:auto}
+
+/* make nav text clearer */
+nav a{color:var(--white); font-weight:600}
+#dbid-info{color:greenyellow; font-size:0.95rem}

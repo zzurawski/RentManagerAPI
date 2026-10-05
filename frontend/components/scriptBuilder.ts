@@ -1,67 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../index.css">
-    <link rel="stylesheet" href="./pages.css">
-    <title>Script Builder</title>
-</head>
-<body>
-    <nav>
-        <a href="../index.html"><img alt="home" src="../resources/home.png"/></a>
-        <a href="report.html">Reports</a> |
-        <a href="letterTemplates.html"><img alt="letters" src="../resources/envelope.png" /></a>
-        <a href="">SCRIPT</a>
-        <span id="nav-user-info" style="margin-left:12px; color:var(--muted)">Not signed in</span>
-    </nav>
-
-    <div class="main-row">
-        <aside id="entity-type-selector" class="panel">
-            <h2>Entity Type</h2>
-            <div class="dropdown" id="entity-type-dropdown">
-                <button id="entity-type-button" class="dropdown-toggle">Tenant ▾</button>
-                <div id="entity-type-menu" class="dropdown-menu" style="display:none">
-                    <button data-entity="Owners">Owners</button>
-                    <button data-entity="Tenants">Tenants</button>
-                    <button data-entity="Prospects">Prospects</button>
-                    <button data-entity="Properties">Properties</button>
-                </div>
-            </div>
-        </aside>
-
-        <div id="scriptbuilder-container">
-        <aside id="entity-select-container" class="panel">
-            <h2 id="entity-select-header">Tenants</h2>
-            <input id="entity-search" placeholder="Search tenants..." />
-            <ul id="entity-options"></ul>
-        </aside>
-
-        <main id="script-entry-container" class="panel">
-            <form id="script-form">
-                <h2>Script Builder</h2>
-                <textarea id="script-entry" rows="4" placeholder="Enter script here...">[Lease.Unit.Name]</textarea>
-                <div class="controls">
-                    <button type="button" id="run-btn" class="btn btn-primary">Test Script</button>
-                    <button type="button" id="clear-btn" class="btn btn-ghost">Clear</button>
-                    <div style="margin-left:auto; color:var(--muted); font-size:0.9rem">Selected: <span id="selected-tenant">None</span></div>
-                </div>
-            </form>
-        </main>
-
-        <section id="script-output-container" class="panel">
-            <h2>Output</h2>
-            <pre id="script-output-textarea">*** See Script Output here</pre>
-        </section>
-    </div>
-
-    <script>
-        // helper to retrieve stored RM API token
-        function getRmToken() {
-            return localStorage.getItem('rm_api_token') || window.rmApiToken || '';
-        }
-
-        // Entity type dropdown behavior
+function ScriptBuilder() {
+    // Constructor logic here
+      // Entity type dropdown behavior
         const entityTypeDropdown = document.getElementById('entity-type-dropdown');
         const entityTypeButton = document.getElementById('entity-type-button');
         const entityTypeMenu = document.getElementById('entity-type-menu');
@@ -83,13 +22,14 @@
             loadEntities(selectedEntityType);
         });
 
+        // helper to retrieve stored RM API token
+        function getRmToken() { return localStorage.getItem('rm_api_token') || (window as any).rmApiToken || ''; }
+
         // change options of entity list based on dropdown selection
         async function loadEntities(selectedEntityType) {
             try {
                 const token = getRmToken();
-                const res = await fetch(`http://localhost:3000/entities/${selectedEntityType.toLowerCase()}`, {
-                    headers: token ? { 'X-RM12Api-ApiToken': token } : {}
-                });
+                const res = await fetch(`http://localhost:3000/entities/${selectedEntityType.toLowerCase()}`, { headers: token ? { 'X-RM12Api-ApiToken': token } : {} });
                 if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
                 const entities = await res.json();
                 renderEntityList(entities);
@@ -224,21 +164,44 @@
 
         // Load entities on startup
         loadEntities('Tenants');
+    return
+        `<div class="main-row">
+        <aside id="entity-type-selector" class="panel">
+            <h2>Entity Type</h2>
+            <div class="dropdown" id="entity-type-dropdown">
+                <button id="entity-type-button" class="dropdown-toggle">Tenant ▾</button>
+                <div id="entity-type-menu" class="dropdown-menu" style="display:none">
+                    <button data-entity="Owners">Owners</button>
+                    <button data-entity="Tenants">Tenants</button>
+                    <button data-entity="Prospects">Prospects</button>
+                    <button data-entity="Properties">Properties</button>
+                </div>
+            </div>
+        </aside>
 
-        // populate nav user info from localStorage
-        (function populateNav() {
-            try {
-                const user = localStorage.getItem('rm_api_user');
-                const dbid = localStorage.getItem('rm_api_dbid');
-                const nav = document.getElementById('nav-user-info');
-                if (user && dbid) nav.textContent = user + ' @ ' + dbid;
-            } catch (e) { }
-        })();
+        <div id="scriptbuilder-container">
+        <aside id="entity-select-container" class="panel">
+            <h2 id="entity-select-header">Tenants</h2>
+            <input id="entity-search" placeholder="Search tenants..." />
+            <ul id="entity-options"></ul>
+        </aside>
 
+        <main id="script-entry-container" class="panel">
+            <form id="script-form">
+                <h2>Script Builder</h2>
+                <textarea id="script-entry" rows="4" placeholder="Enter script here...">[Lease.Unit.Name]</textarea>
+                <div class="controls">
+                    <button type="button" id="run-btn" class="btn btn-primary">Test Script</button>
+                    <button type="button" id="clear-btn" class="btn btn-ghost">Clear</button>
+                    <div style="margin-left:auto; color:var(--muted); font-size:0.9rem">Selected: <span id="selected-tenant">None</span></div>
+                </div>
+            </form>
+        </main>
 
-    </script>
-</body>
-<footer>
-    <p style="text-align:center; font-size:0.8rem; color:var(--muted); margin-top:20px;">&copy; 2026 - Rent Manager API by Zach Zurawski</p>
-</footer>
-</html>
+        <section id="script-output-container" class="panel">
+            <h2>Output</h2>
+            <pre id="script-output-textarea">*** See Script Output here</pre>
+        </section>
+    </div>`
+    
+}
