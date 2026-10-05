@@ -15,9 +15,23 @@
         <a href="">SCRIPT</a>
     </nav>
 
-    <div id="scriptbuilder-container">
+    <div class="main-row">
+        <aside id="entity-type-selector" class="panel">
+            <h2>Entity Type</h2>
+            <div class="dropdown" id="entity-type-dropdown">
+                <button id="entity-type-button" class="dropdown-toggle">Tenant ▾</button>
+                <div id="entity-type-menu" class="dropdown-menu" style="display:none">
+                    <button data-entity="Owner">Owner</button>
+                    <button data-entity="Tenant">Tenant</button>
+                    <button data-entity="Prospect">Prospect</button>
+                    <button data-entity="Property">Property</button>
+                </div>
+            </div>
+        </aside>
+
+        <div id="scriptbuilder-container">
         <aside id="entity-select-container" class="panel">
-            <h2>Tenants</h2>
+            <h2 id="entity-select-header">Tenants</h2>
             <input id="entity-search" placeholder="Search tenants..." />
             <ul id="entity-options"></ul>
         </aside>
@@ -41,6 +55,53 @@
     </div>
 
     <script>
+        // Entity type dropdown behavior
+        const entityTypeDropdown = document.getElementById('entity-type-dropdown');
+        const entityTypeButton = document.getElementById('entity-type-button');
+        const entityTypeMenu = document.getElementById('entity-type-menu');
+        let selectedEntityType = 'Tenant';
+
+        entityTypeButton.addEventListener('click', () => {
+            const open = entityTypeMenu.style.display === 'block';
+            entityTypeMenu.style.display = open ? 'none' : 'block';
+        });
+
+        // change text of the button and header when an entity type is selected
+        entityTypeMenu.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-entity]');
+            if (!btn) return;
+            selectedEntityType = btn.dataset.entity;
+            entityTypeButton.textContent = selectedEntityType + ' ▾';
+            document.getElementById('entity-select-header').textContent = selectedEntityType;
+            entityTypeMenu.style.display = 'none';
+        });
+
+        // change options of entity list based on dropdown selection
+        async function loadEntities() {
+            try {
+                const res = await fetch(`http://localhost:3000/${selectedEntityType.toLowerCase()}s`);
+                if (!res.ok) throw new Error('Server returned ' + res.status + ' ' + res.statusText);
+                const entities = await res.json();
+                renderTenantList(entities);
+            } catch (err) {
+                console.error('Error loading entities:', err);
+            }
+        }
+
+        // Close type menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!entityTypeDropdown.contains(e.target)) entityTypeMenu.style.display = 'none';
+        });
+
+        // show dropdown menu when clicking the button
+        function toggleDropdown() {
+            const button = document.getElementById('entity-type-button');
+            button.classList.toggle('active');
+            const menu = document.getElementById('entity-type-menu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // SCRIPT BUILDER STUFF
         const textarea = document.getElementById('script-entry');
         function autoResize() {
             textarea.style.height = 'auto';
@@ -54,7 +115,7 @@
             }
         });
 
-        // Use explicit button click to run the script (new UI buttons)
+        // Use button to run script and show output in the output textarea
         document.getElementById('run-btn').addEventListener('click', async () => {
             const responseArea = document.getElementById('script-output-textarea');
             const script = textarea.value;
@@ -120,6 +181,8 @@
             });
         }
 
+
+        // GET TENANTS FROM API AND RENDER
         async function loadTenants() {
             try {
                 const res = await fetch('http://localhost:3000/tenants');
