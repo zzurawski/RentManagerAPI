@@ -174,7 +174,6 @@ function setApiTokenTransient(apiToken) {
   _apiToken = apiToken;
   const client = getClient();
   try { client.defaults.headers.common["X-RM12Api-ApiToken"] = apiToken; } catch (e) {}
-  process.env.API_TOKEN = apiToken || '';
   return apiToken;
 }
 
@@ -182,8 +181,11 @@ function getApiToken() {
   // Prefer in-memory but validate against stored timestamps
   try {
     const env = readEnvSync(ENV_PATH);
-    const persisted = Boolean(env.API_TOKEN);
-    const token = (env.API_TOKEN) || process.env.API_TOKEN || _apiToken;
+    const envToken = env.API_TOKEN || null;
+    // Prefer in-memory token (transient login) first, then process.env, then .env file
+    const token = _apiToken || process.env.API_TOKEN || envToken;
+    // Consider token persisted only if it matches the token read from .env
+    const persisted = Boolean(envToken && token === envToken);
     if (!token) return null;
 
     const created = env.API_TOKEN_CREATED;

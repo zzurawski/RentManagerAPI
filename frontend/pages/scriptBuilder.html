@@ -65,7 +65,7 @@
         const entityTypeDropdown = document.getElementById('entity-type-dropdown');
         const entityTypeButton = document.getElementById('entity-type-button');
         const entityTypeMenu = document.getElementById('entity-type-menu');
-        let selectedEntityType = 'Tenant';
+        let selectedEntityType = 'Tenants';
 
         entityTypeButton.addEventListener('click', () => {
             const open = entityTypeMenu.style.display === 'block';
@@ -215,8 +215,8 @@
         const entitySearch = document.getElementById('entity-search');
         function filterAndRender() {
             const q = (entitySearch.value || textarea.value || '').trim().toLowerCase();
-            if (!q) return renderEntityList(tenants);
-            const filtered = tenants.filter(t => (t.Name ?? t.name ?? '').toLowerCase().includes(q));
+            if (!q) return renderEntityList(entities);
+            const filtered = entities.filter(t => (t.Name ?? t.name ?? '').toLowerCase().includes(q));
             renderEntityList(filtered);
         }
         entitySearch.addEventListener('input', filterAndRender);
@@ -224,6 +224,8 @@
 
         // Load entities on startup
         loadEntities('Tenants');
+
+
 
         // populate nav user info from localStorage
         (function populateNav() {
