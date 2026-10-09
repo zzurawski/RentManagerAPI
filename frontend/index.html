@@ -64,6 +64,7 @@
       try {
         const result = await doLogin(user, password, dbid);
         // store token locally for use by other pages
+        console.log(result);
         const apiToken = (result && result.apiToken) ? result.apiToken : (typeof result === 'string' ? result : null);
         if (apiToken) {
             try {
@@ -75,7 +76,7 @@
         }
         status.textContent = 'Login successful';
         content.innerHTML = '<pre>' + (typeof result === 'string' ? result : JSON.stringify(result, null, 2)) + '</pre>';
-        document.getElementById('dbid-info').textContent = 'logged into: ' + dbid;
+        //document.getElementById('dbid-info').textContent = 'logged into: ';
           // update navbar user info and show logout
           const navInfo = document.getElementById('nav-user-info');
           if (navInfo) navInfo.textContent = user + ' @ ' + dbid;
